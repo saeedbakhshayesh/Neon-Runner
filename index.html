@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <meta name="theme-color" content="#0a0a18" />
+  <meta
+    name="description"
+    content="Neon Runner — a fast-paced 3D-style endless ball runner for mobile and desktop."
+  />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Neon Runner — Endless Ball Runner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <main id="gameContainer" class="game-container">
+
+    <canvas id="gameCanvas" class="game-canvas" aria-label="Game world"></canvas>
+
+    <div id="damageFlash" class="fx-layer fx-damage-flash" aria-hidden="true"></div>
+    <div id="speedLines" class="fx-layer fx-speed-lines" aria-hidden="true"></div>
+    <div id="vignette" class="fx-layer fx-vignette" aria-hidden="true"></div>
+
+    <header id="gameHud" class="hud" aria-hidden="true">
+      <div class="hud-row hud-row-top">
+        <div class="hud-left">
+          <div class="score-display">
+            <span class="score-label">SCORE</span>
+            <span id="scoreValue" class="score-value">0</span>
+          </div>
+          <div id="livesDisplay" class="lives-display" aria-label="Lives remaining">
+            <span class="heart" data-life="1" aria-hidden="true">❤</span>
+            <span class="heart" data-life="2" aria-hidden="true">❤</span>
+            <span class="heart" data-life="3" aria-hidden="true">❤</span>
+          </div>
+        </div>
+
+        <div class="hud-right">
+          <div class="multiplier-display">
+            <div
+              class="multiplier-bar"
+              role="progressbar"
+              aria-label="Multiplier progress"
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-valuenow="0"
+            >
+              <div id="multiplierFill" class="multiplier-fill"></div>
+            </div>
+            <span id="multiplierValue" class="multiplier-value">x1</span>
+          </div>
+
+          <div class="hud-controls">
+            <button id="soundButton" class="icon-button" type="button" aria-label="Toggle sound" aria-pressed="true">
+              <span class="icon icon-sound-on" aria-hidden="true">🔊</span>
+              <span class="icon icon-sound-off" aria-hidden="true">🔇</span>
+            </button>
+
+            <button id="pauseButton" class="icon-button" type="button" aria-label="Pause game">
+              <span class="icon icon-pause" aria-hidden="true">❚❚</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div id="hudCharacterName" class="hud-character-name">Saeed</div>
+    </header>
+
+    <!-- ============================================================
+         START SCREEN + CHARACTER SELECTION + THEME TOGGLE
+         ============================================================ -->
+    <section id="startScreen" class="screen start-screen is-active" aria-label="Start screen">
+
+      <!-- Theme toggle (top-right corner of the screen) -->
+      <button id="themeButton" class="theme-toggle" type="button" aria-label="Toggle theme">
+        <span class="icon icon-theme-pastel" aria-hidden="true">🌸</span>
+        <span class="icon icon-theme-neon" aria-hidden="true">🌃</span>
+      </button>
+
+      <div class="screen-panel start-panel">
+
+        <header class="title-block">
+          <h1 class="game-title">NEON<span class="title-accent">RUNNER</span></h1>
+          <p class="game-subtitle">Endless Ball Runner</p>
+        </header>
+
+        <h2 class="section-title">CHOOSE YOUR BALL</h2>
+
+        <div id="characterSelect" class="character-select" role="radiogroup" aria-label="Choose your ball">
+          <button class="character-option" type="button" role="radio" aria-checked="false" data-character="saeed" data-ball-color="black">
+            <span class="character-ball ball-saeed" aria-hidden="true"></span>
+            <span class="character-name">Saeed</span>
+            <span class="character-check" aria-hidden="true">✓</span>
+          </button>
+
+          <button class="character-option" type="button" role="radio" aria-checked="false" data-character="arshia" data-ball-color="green">
+            <span class="character-ball ball-arshia" aria-hidden="true"></span>
+            <span class="character-name">Arshia</span>
+            <span class="character-check" aria-hidden="true">✓</span>
+          </button>
+
+          <button class="character-option" type="button" role="radio" aria-checked="false" data-character="nima" data-ball-color="blue">
+            <span class="character-ball ball-nima" aria-hidden="true"></span>
+            <span class="character-name">Nima</span>
+            <span class="character-check" aria-hidden="true">✓</span>
+          </button>
+
+          <button class="character-option" type="button" role="radio" aria-checked="false" data-character="sevil" data-ball-color="purple">
+            <span class="character-ball ball-sevil" aria-hidden="true"></span>
+            <span class="character-name">Sevil</span>
+            <span class="character-check" aria-hidden="true">✓</span>
+          </button>
+        </div>
+
+        <p id="selectedCharacterLabel" class="selected-character-label">
+          Selected: <strong id="selectedCharacterName">Saeed</strong>
+        </p>
+
+        <button id="playButton" class="button button-primary" type="button">PLAY</button>
+
+        <p class="controls-hint">
+          <span class="hint-desktop">← → or A / D to dodge &nbsp;•&nbsp; Space to jump</span>
+          <span class="hint-mobile">Drag to move &nbsp;•&nbsp; Swipe up to jump</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         PAUSE OVERLAY
+         ============================================================ -->
+    <section id="pauseScreen" class="screen pause-screen" aria-label="Pause menu">
+      <div class="screen-panel panel-small">
+        <h2 class="screen-title">PAUSED</h2>
+
+        <div class="stats-grid">
+          <div class="stat">
+            <span class="stat-label">SCORE</span>
+            <span id="pauseScoreValue" class="stat-value">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">BALL</span>
+            <span id="pauseCharacterName" class="stat-value">Saeed</span>
+          </div>
+        </div>
+
+        <button id="resumeButton" class="button button-primary" type="button">RESUME</button>
+        <button id="quitButton" class="button button-ghost" type="button">MAIN MENU</button>
+      </div>
+    </section>
+
+    <!-- ============================================================
+         GAME OVER OVERLAY
+         ============================================================ -->
+    <section id="gameOverScreen" class="screen game-over-screen" aria-label="Game over">
+      <div class="screen-panel panel-small">
+        <h2 class="screen-title screen-title-danger">GAME OVER</h2>
+
+        <p id="newBestBadge" class="new-best-badge" hidden>NEW BEST!</p>
+
+        <div class="stats-grid">
+          <div class="stat stat-wide">
+            <span class="stat-label">SCORE</span>
+            <span id="finalScoreValue" class="stat-value">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">BEST</span>
+            <span id="bestScoreValue" class="stat-value">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">CHARACTER</span>
+            <span id="finalCharacterName" class="stat-value">Saeed</span>
+          </div>
+        </div>
+
+        <button id="playAgainButton" class="button button-primary" type="button">PLAY AGAIN</button>
+        <button id="changeBallButton" class="button button-ghost" type="button">CHANGE BALL</button>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="game.js"></script>
+</body>
+</html>
